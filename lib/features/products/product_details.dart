@@ -224,9 +224,9 @@ class _ProductDetailsPageState extends State<ProductDetailsScreen> {
                       SizedBox(width: 10),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed:()async{
+                          onPressed:()async {
                             _addToCart();
-                            Navigator.push(context, MaterialPageRoute(builder: (context)=>CartScreen()));},
+                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xff004182),
                             padding: const EdgeInsets.symmetric(vertical: 12),

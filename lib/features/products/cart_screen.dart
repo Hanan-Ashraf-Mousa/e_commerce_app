@@ -1,4 +1,4 @@
-import 'package:e_commerce_app/features/products/order_screen.dart';
+import 'package:e_commerce_app/features/products/checkout_screen.dart';
 import 'package:e_commerce_app/models/product_model.dart';
 import 'package:e_commerce_app/network/firbase_manager.dart';
 import 'package:flutter/material.dart';
@@ -324,7 +324,7 @@ class _CartScreenState extends State<CartScreen> {
                                 MaterialPageRoute(
                                   builder:
                                       (context) =>
-                                          OrdersScreen(userId: userId!),
+                                         CheckoutScreen(products: cartItems, totalPrice: totalPrice)
                                 ),
                               );
                             },

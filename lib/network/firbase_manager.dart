@@ -102,7 +102,6 @@ class FirebaseManager {
       if (cartDoc.exists) {
         await getCartCollection(uid).doc(product.id).update({
           'quantity': FieldValue.increment(product.quantity),
-          'updatedAt': FieldValue.serverTimestamp(),
         });
       } else {
         await getCartCollection(uid).doc(product.id).set({
@@ -113,7 +112,13 @@ class FirebaseManager {
       throw Exception('Failed to add to cart: $e');
     }
   }
-
+  Future<void> clearCart(String userId) async {
+    final cartRef = FirebaseFirestore.instance.collection('users').doc(userId).collection('cart');
+    final snapshot = await cartRef.get();
+    for (var doc in snapshot.docs) {
+      await doc.reference.delete();
+    }
+  }
   Future<void> removeFromCart(String userId, String productId) async {
     try {
       await getCartCollection(userId).doc(productId).delete();

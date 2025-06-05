@@ -1,6 +1,7 @@
 import 'package:e_commerce_app/features/auth/register_screen.dart';
 import 'package:e_commerce_app/network/firbase_manager.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../widgets/custom_text_form_field.dart';
 import '../layout/layout_screen.dart';
@@ -20,6 +21,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   bool isHiddenPass = true;
  bool remember= false;
+ bool isLoading =false;
   @override
   void dispose() {
     super.dispose();
@@ -147,7 +149,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     vertical: 15,
                   ),
                   child: ElevatedButton(
-                    onPressed: login,
+                    onPressed: _login,
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(18),
@@ -205,13 +207,43 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  login() {
-    if (_formKey.currentState!.validate()) {
-      FirebaseManager.signin(_emailController.text, _passwordController.text);
+  Future<void> _login() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final userId = await FirebaseManager.signin(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
+      );
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('userId', userId!);
+
+      // Show success SnackBar
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Login successful!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context)=>LayoutScreen())
       );
+    } catch (e) {
+      // Show error SnackBar
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Login failed: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 }
