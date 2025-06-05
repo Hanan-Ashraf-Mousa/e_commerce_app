@@ -1,3 +1,4 @@
+import 'package:e_commerce_app/features/products/order_screen.dart';
 import 'package:e_commerce_app/models/product_model.dart';
 import 'package:e_commerce_app/network/firbase_manager.dart';
 import 'package:flutter/material.dart';
@@ -130,190 +131,238 @@ class _CartScreenState extends State<CartScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemBuilder: (context, index) {
-                final product = cartItems[index]['product'] as ProductModel;
-                final quantity = cartItems[index]['quantity'] as int;
-                return Container(
-                  margin: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Color(0xff06004F)),
+      body:
+          isLoading
+              ? Center(child: CircularProgressIndicator())
+              : cartItems.isEmpty
+              ? Center(
+                child: Text(
+                  'No Products Added To Cart',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xff06004F),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(20),
-                        child: Image.network(
-                          product.image ?? '',
-                          width: MediaQuery.of(context).size.width * 0.2,
-                          fit: BoxFit.cover,
-                          height: 100,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return CircularProgressIndicator();
-                          },
-                          errorBuilder: (context, e, stackTrace) {
-                            return Icon(Icons.error);
-                          },
-                        ),
-                      ),
-                      SizedBox(width: 10),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.6,
-                            child: Text(
-                              product.title,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                overflow: TextOverflow.ellipsis,
-                                color: Color(0xff06004F),
-                              ),
-                            ),
+                ),
+              )
+              : Column(
+                children: [
+                  Expanded(
+                    child: ListView.builder(
+                      itemBuilder: (context, index) {
+                        final product =
+                            cartItems[index]['product'] as ProductModel;
+                        final quantity = cartItems[index]['quantity'] as int;
+                        return Container(
+                          margin: EdgeInsets.symmetric(
+                            vertical: 10,
+                            horizontal: 5,
                           ),
-                          SizedBox(height: 2),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: Color(0xff06004F)),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text(
-                                'EGp ${product.price}',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: Color(0xff06004F),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(20),
+                                child: Image.network(
+                                  product.image ?? '',
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.2,
+                                  fit: BoxFit.cover,
+                                  height: 100,
+                                  loadingBuilder: (
+                                    context,
+                                    child,
+                                    loadingProgress,
+                                  ) {
+                                    if (loadingProgress == null) return child;
+                                    return CircularProgressIndicator();
+                                  },
+                                  errorBuilder: (context, e, stackTrace) {
+                                    return Icon(Icons.error);
+                                  },
                                 ),
                               ),
-                              SizedBox(width: 5),
-                              Container(
-                                alignment: Alignment.center,
-                                width: MediaQuery.of(context).size.width * 0.35,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
+                              SizedBox(width: 10),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.6,
+                                    child: Text(
+                                      product.title,
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                        overflow: TextOverflow.ellipsis,
+                                        color: Color(0xff06004F),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 2),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      Text(
+                                        'EGp ${product.price}',
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                          color: Color(0xff06004F),
+                                        ),
+                                      ),
+                                      SizedBox(width: 5),
+                                      Container(
+                                        alignment: Alignment.center,
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                            0.35,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
+                                          color: Color(0xff004081),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            IconButton(
+                                              onPressed: () {
+                                                _decrementQuantity(index);
+                                              },
+                                              icon: const Icon(
+                                                Icons.remove_circle_outline,
+                                                size: 25,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            Text(
+                                              '$quantity',
+                                              style: const TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.w500,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            IconButton(
+                                              onPressed: () {
+                                                _incrementQuantity(index);
+                                              },
+                                              icon: const Icon(
+                                                Icons.add_circle_outline,
+                                                size: 25,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  // Add to Cart Button
+                                ],
+                              ),
+                              IconButton(
+                                onPressed: () {
+                                  _removeItem(index);
+                                },
+                                icon: Icon(
+                                  Icons.delete_outline,
                                   color: Color(0xff004081),
                                 ),
-                                child: Row(
-                                  children: [
-                                    IconButton(
-                                      onPressed: () {
-                                        _decrementQuantity(index);
-                                      },
-                                      icon: const Icon(
-                                        Icons.remove_circle_outline,
-                                        size: 25,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    Text(
-                                      '$quantity',
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    IconButton(
-                                      onPressed: () {
-                                        _incrementQuantity(index);
-                                      },
-                                      icon: const Icon(
-                                        Icons.add_circle_outline,
-                                        size: 25,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                hoverColor: Colors.red,
                               ),
                             ],
                           ),
-                          // Add to Cart Button
-                        ],
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          _removeItem(index);
-                        },
-                        icon: Icon(Icons.delete_outline, color: Color(0xff004081)),
-                        hoverColor: Colors.red,
-                      ),
-                    ],
+                        );
+                      },
+                      itemCount: cartItems.length,
+                    ),
                   ),
-                );
-              },
-              itemCount: cartItems.length,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Column(
-                  children: [
-                    Text(
-                      'Total Price',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xff06004F).withOpacity(0.6),
-                      ),
-                    ),
-                    Text(
-                      'EGp $totalPrice',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xff06004F),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(width: 10),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed:(){},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xff004182),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
+                  Padding(
+                    padding: const EdgeInsets.all(10),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        const Text(
-                          'Checkout',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.white,
+                        Column(
+                          children: [
+                            Text(
+                              'Total Price',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                                color: Color(0xff06004F).withOpacity(0.6),
+                              ),
+                            ),
+                            Text(
+                              'EGp $totalPrice',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                                color: Color(0xff06004F),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(width: 10),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              FirebaseManager().placeOrder(
+                                userId!,
+                                cartItems
+                                    .map((item) => ProductModel.fromJson(item))
+                                    .toList(),
+                              );
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) =>
+                                          OrdersScreen(userId: userId!),
+                                ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xff004182),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                const Text(
+                                  'Checkout',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.arrow_forward,
+                                  color: Colors.white,
+                                  size: 30,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                        Icon(
-                          Icons.arrow_forward,
-                          color: Colors.white,
-                          size: 30,
-                        ),
-
                       ],
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+                ],
+              ),
     );
   }
+
   double get totalPrice => cartItems.fold(
     0,
-        (sum, item) => sum + (item['product'] as ProductModel).price * (item['quantity'] as int),
+    (sum, item) =>
+        sum +
+        (item['product'] as ProductModel).price * (item['quantity'] as int),
   );
-
 }

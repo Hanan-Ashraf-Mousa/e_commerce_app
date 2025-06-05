@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/user_model.dart';
 import '../../network/api_manager.dart';
+import '../products/cart_screen.dart';
 import 'my_search_delegate.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -91,10 +92,17 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           IconButton(
             onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context)=>CartScreen()));
+            },
+            icon: Icon(Icons.shopping_cart_outlined, color: Colors.white),
+          ),
+          IconButton(
+            onPressed: () {
               showSearch(context: context, delegate: MySearchDelegate(products:products));
             },
             icon: Icon(Icons.search, color: Colors.white54, size: 30),
           ),
+
         ],
       ),
       body: SingleChildScrollView(

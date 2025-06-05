@@ -222,10 +222,12 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         _favoritesFuture = firebaseManager.getFavoriteItems(widget.userId);
       });
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${product.title} removed from favorites')));
+        SnackBar(content: Text('${product.title} removed from favorites')),
+      );
     } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Failed to remove favorite')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to remove favorite')));
     }
   }
 
@@ -247,15 +249,91 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             itemCount: favorites.length,
             itemBuilder: (context, index) {
               final product = favorites[index];
-              return ListTile(
-                leading: product.image != null
-                    ? Image.network(product.image!, width: 50, height: 50)
-                    : const Icon(Icons.image_not_supported),
-                title: Text(product.title),
-                subtitle: Text('\$${product.price.toStringAsFixed(2)}'),
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: () => _removeFromFavorites(product),
+              return Container(
+                margin: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Color(0xff06004F)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Image.network(
+                        product.image ?? '',
+                        width: MediaQuery.of(context).size.width * 0.2,
+                        fit: BoxFit.cover,
+                        height: 100,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return CircularProgressIndicator();
+                        },
+                        errorBuilder: (context, e, stackTrace) {
+                          return Icon(Icons.error);
+                        },
+                      ),
+                    ),
+                    SizedBox(width: 10),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.6,
+                          child: Text(
+                            product.title,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              overflow: TextOverflow.ellipsis,
+                              color: Color(0xff06004F),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 2),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Text(
+                              'EGp ${product.price}',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: Color(0xff06004F),
+                              ),
+                            ),
+                            SizedBox(width: 5,),
+                            ElevatedButton(
+                              onPressed: () async {
+                                FirebaseManager().addToCart(product,widget.userId );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xff004182),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                  horizontal: 12
+                                ),
+                              ),
+                              child: const Text(
+                                'Add to Cart',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        _removeFromFavorites(product);
+                      },
+                      icon: Icon(Icons.favorite, color: Color(0xff004081)),
+                    ),
+                  ],
                 ),
               );
             },

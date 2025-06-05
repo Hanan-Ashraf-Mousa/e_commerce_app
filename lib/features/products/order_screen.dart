@@ -41,25 +41,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
             itemBuilder: (context, index) {
               final order = orders[index];
               return Card(
-                margin: const EdgeInsets.all(8),
-                child: ExpansionTile(
-                  title: Text(
-                      'Order #${order.id.substring(0, 6)} - ${order.status.toUpperCase()}'),
-                  subtitle: Text(order.createdAt != null
-                      ? 'Placed on ${order.createdAt!.toLocal().toString().split(' ')[0]}'
-                      : 'Date not available'),
-                  children: order.products
-                      .map((product) => ListTile(
-                    leading: product.image != null
-                        ? Image.network(product.image!,
-                        width: 40, height: 40, fit: BoxFit.cover)
-                        : const Icon(Icons.image_not_supported),
-                    title: Text(product.title),
-                    subtitle:
-                    Text('\$${product.price.toStringAsFixed(2)}'),
-                  ))
-                      .toList(),
-                ),
+
               );
             },
           );
