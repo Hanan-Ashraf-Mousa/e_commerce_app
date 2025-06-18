@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../favourite/favorite_screen.dart';
 import '../home/home_screen.dart';
-import '../products/products_screen.dart';
+import '../products/products-screen.dart';
 import '../profile/profile_screen.dart';
 
 class LayoutScreen extends StatefulWidget {
@@ -42,7 +42,7 @@ class _LayoutScreenState extends State<LayoutScreen> {
         }),
         children: [
           HomeScreen(),
-          // ProductsScreen(),
+          ProductsScreen(),
           FavoritesScreen(userId: userId,),
           ProfileScreen(),
         ],
@@ -81,19 +81,19 @@ class _LayoutScreenState extends State<LayoutScreen> {
                 child: Icon(Icons.home_outlined , color: Color(0xff004182)),
               ),
             ),
-            // BottomNavigationBarItem(
-            //   icon: Icon(Icons.category_outlined, color: Colors.white),
-            //   label: 'Products',
-            //   activeIcon: Container(
-            //     width: 60,
-            //     height: 50,
-            //     decoration: BoxDecoration(
-            //       shape: BoxShape.circle,
-            //       color: Colors.white,
-            //     ),
-            //     child: Icon(Icons.category_outlined , color: Color(0xff004182)),
-            //   ),
-            // ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.category_outlined, color: Colors.white),
+              label: 'Products',
+              activeIcon: Container(
+                width: 60,
+                height: 50,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white,
+                ),
+                child: Icon(Icons.category_outlined , color: Color(0xff004182)),
+              ),
+            ),
             BottomNavigationBarItem(
               icon: Icon(Icons.favorite_border_outlined, color: Colors.white),
               label: 'favourite',

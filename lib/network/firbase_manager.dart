@@ -6,10 +6,10 @@ import '../models/user_model.dart';
 import '../models/product_model.dart';
 
 class FirebaseManager {
-  final FirebaseFirestore db = FirebaseFirestore.instance;
+   static FirebaseFirestore db = FirebaseFirestore.instance;
 
 
-  CollectionReference<UserModel> getUsersCollection() {
+ static CollectionReference<UserModel> getUsersCollection() {
     return db.collection('users').withConverter<UserModel>(
       fromFirestore: (snapshot, _) =>
           UserModel.fromJson(snapshot.data() ?? {}),
@@ -26,22 +26,22 @@ class FirebaseManager {
   }
 
 
-  Future<UserModel?> getUserProfile() async {
-    try {
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      final userId = prefs.getString('userId');
-      if (userId == null) {
-        return null;
-      }
-      final currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser == null || currentUser.uid != userId) {
-        return null;
-      }
-      final docSnapshot = await getUsersCollection().doc(userId).get();
+  static Future<UserModel?> getUserProfile(String id) async {
+    // try {
+    //   final SharedPreferences prefs = await SharedPreferences.getInstance();
+    //   final userId = prefs.getString('userId');
+    //   if (userId == null) {
+    //     return null;
+    //   }
+    //   final currentUser = FirebaseAuth.instance.currentUser;
+    //   if (currentUser == null || currentUser.uid != userId) {
+    //     return null;
+    //   }
+      final docSnapshot = await getUsersCollection().doc(id).get();
       return docSnapshot.data();
-    } catch (e) {
-      throw Exception('Failed to get user profile: $e');
-    }
+    // } catch (e) {
+    //   throw Exception('Failed to get user profile: $e');
+    // }
   }
 
   CollectionReference getCartCollection(String uid) {

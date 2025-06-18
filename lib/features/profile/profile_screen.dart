@@ -29,7 +29,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
        errorMessage = null;
      });
      try {
-       user = await FirebaseManager().getUserProfile();
+       // user = await FirebaseManager().getUserProfile();
       setState(() {
 
        });

@@ -1,11 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:e_commerce_app/features/products/products_screen.dart';
+import 'package:e_commerce_app/features/products/products_category_screen.dart';
 import 'package:e_commerce_app/models/product_model.dart';
 import 'package:e_commerce_app/network/firbase_manager.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/user_model.dart';
 import '../../network/api_manager.dart';
@@ -43,11 +42,16 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
   getCurrentUser()async{
-     name = await FirebaseAuth.instance.currentUser!.displayName ??'Guest';
-     setState(() {
+    final id = await FirebaseAuth.instance.currentUser!.uid ;
+     UserModel? user = await FirebaseManager.getUserProfile(id);
+     if(user!=null){
+       name = user.name;
+     }else{
+       name ='Guest';
+     }
+   setState(() {
 
-     });
-
+   });
   }
 
   Future<void> navigateToProductsScreen(
@@ -62,7 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
       if (context.mounted) {
         Navigator.pushNamed(
           context,
-          ProductsScreen.routeName,
+          ProductsCategoryScreen.routeName,
           arguments: {'products': products, 'categoryName': categoryName},
         );
       }

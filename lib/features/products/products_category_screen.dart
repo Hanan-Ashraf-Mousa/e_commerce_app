@@ -5,16 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/product_model.dart';
 
-class ProductsScreen extends StatefulWidget {
+class ProductsCategoryScreen extends StatefulWidget {
   static const routeName = '/products';
 
-  const ProductsScreen({super.key});
+  const ProductsCategoryScreen({super.key});
 
   @override
-  State<ProductsScreen> createState() => _ProductsScreenState();
+  State<ProductsCategoryScreen> createState() => _ProductsCategoryScreenState();
 }
 
-class _ProductsScreenState extends State<ProductsScreen> {
+class _ProductsCategoryScreenState extends State<ProductsCategoryScreen> {
   String? userId;
   Map<String, bool> favoriteStatus = {};
   Map<String, bool> isLoading = {};
