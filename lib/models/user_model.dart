@@ -20,10 +20,7 @@ class UserModel {
     required this.path,
   });
 
-  factory UserModel.fromJson(Map<String, dynamic> json) {
-    final cartItemsJson = json['cartItems'] as List<dynamic>?;
-    final favouriteItemsJson = json['favouriteItems'] as List<dynamic>?;
-    return UserModel(
+   UserModel.fromJson(Map<String, dynamic> json) : this(
       id: json['id'],
       name: json['name'],
       phone: json['phone'],
@@ -33,7 +30,7 @@ class UserModel {
       dob: json['dob'],
       path: json['path'],
      );
-  }
+
   Map<String, dynamic> toJson(){
     return {
       'id':id,

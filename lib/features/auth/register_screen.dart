@@ -393,7 +393,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           path: avatar!.path,
         );
         FirebaseManager().storeUser(user);
-
+        DialogUtils.hideLoading(context);
         DialogUtils.showMessage(
           context: context,
           content: 'Account created Successfully',

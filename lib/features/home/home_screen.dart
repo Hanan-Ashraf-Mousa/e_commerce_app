@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:e_commerce_app/features/products/products_category_screen.dart';
+import 'package:e_commerce_app/models/category_model.dart';
 import 'package:e_commerce_app/models/product_model.dart';
 import 'package:e_commerce_app/network/firbase_manager.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/user_model.dart';
 import '../../network/api_manager.dart';
+import '../auth/login_screen.dart';
 import '../products/cart_screen.dart';
 import 'my_search_delegate.dart';
 
@@ -19,7 +21,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List categories = [];
+  List<CategoryModel> categories = [];
   List<ProductModel> products = [];
   String name ='';
   @override
@@ -63,19 +65,16 @@ class _HomeScreenState extends State<HomeScreen> {
       final products = await ApiManger.getProductsOnSpecificCategory(
         categoryId,
       );
-      if (context.mounted) {
         Navigator.pushNamed(
           context,
           ProductsCategoryScreen.routeName,
           arguments: {'products': products, 'categoryName': categoryName},
         );
-      }
+
     } catch (e) {
-      if (context.mounted) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Error loading products: $e')));
-      }
     }
   }
 
@@ -105,7 +104,15 @@ class _HomeScreenState extends State<HomeScreen> {
             },
             icon: Icon(Icons.search, color: Colors.white54, size: 30),
           ),
-
+          IconButton(
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (_) => const LoginScreen()),
+              );
+            },
+            icon: Icon(Icons.logout, color: Colors.white54, size: 30),
+          ),
         ],
       ),
       body: SingleChildScrollView(

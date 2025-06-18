@@ -1,6 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../models/order_model.dart';
 import '../models/user_model.dart';
 import '../models/product_model.dart';
@@ -13,7 +11,7 @@ class FirebaseManager {
     return db.collection('users').withConverter<UserModel>(
       fromFirestore: (snapshot, _) =>
           UserModel.fromJson(snapshot.data() ?? {}),
-      toFirestore: (UserModel user, _) => user.toJson(),
+          toFirestore: ( user, _) => user.toJson(),
     );
   }
 
@@ -27,24 +25,11 @@ class FirebaseManager {
 
 
   static Future<UserModel?> getUserProfile(String id) async {
-    // try {
-    //   final SharedPreferences prefs = await SharedPreferences.getInstance();
-    //   final userId = prefs.getString('userId');
-    //   if (userId == null) {
-    //     return null;
-    //   }
-    //   final currentUser = FirebaseAuth.instance.currentUser;
-    //   if (currentUser == null || currentUser.uid != userId) {
-    //     return null;
-    //   }
       final docSnapshot = await getUsersCollection().doc(id).get();
       return docSnapshot.data();
-    // } catch (e) {
-    //   throw Exception('Failed to get user profile: $e');
-    // }
   }
 
-  CollectionReference getCartCollection(String uid) {
+ static CollectionReference getCartCollection(String uid) {
     return db.collection('users').doc(uid).collection('cart');
   }
   Future<void> addToCart(ProductModel product, String uid) async {
@@ -148,7 +133,7 @@ class FirebaseManager {
   }
 
 
-
+  // orders
   CollectionReference getOrdersCollection(String uid) {
     return db.collection('users').doc(uid).collection('orders');
   }

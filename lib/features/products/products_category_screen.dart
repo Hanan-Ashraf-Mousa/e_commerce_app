@@ -68,9 +68,7 @@ class _ProductsCategoryScreenState extends State<ProductsCategoryScreen> {
           icon: Icon(Icons.arrow_back, color: Colors.white70),
         ),
       ),
-      body:userId == null
-              ? const Center(child: Text('Please log in to view products'))
-              : products.isEmpty
+      body: products.isEmpty
               ? const Center(
                 child: Text(
                   'No products Found for this Category',
@@ -122,34 +120,34 @@ class _ProductsCategoryScreenState extends State<ProductsCategoryScreen> {
                                 ),
                                 IconButton(
                                   onPressed: () async {
-                                    if (userId == null) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(content: Text('Please log in to manage favorites')),
-                                      );
-                                      return;
-                                    }
-
-                                    setState(() {
-                                      isLoading[product.id] = true;
-                                    });
-
-                                    try {
-                                      if (favoriteStatus[product.id] ?? false) {
-                                        await FirebaseManager().removeFromFavorites(userId!, product.id);
-                                        favoriteStatus[product.id] = false;
-                                      } else {
-                                        await FirebaseManager().addToFavorites(product, userId!);
-                                        favoriteStatus[product.id] = true;
-                                      }
-                                    } catch (e) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(content: Text('Error: $e')),
-                                      );
-                                    } finally {
-                                      setState(() {
-                                        isLoading[product.id] = false;
-                                      });
-                                    }
+                                    // if (userId == null) {
+                                    //   ScaffoldMessenger.of(context).showSnackBar(
+                                    //     SnackBar(content: Text('Please log in to manage favorites')),
+                                    //   );
+                                    //   return;
+                                    // }
+                                    //
+                                    // setState(() {
+                                    //   isLoading[product.id] = true;
+                                    // });
+                                    //
+                                    // try {
+                                    //   if (favoriteStatus[product.id] ?? false) {
+                                    //     await FirebaseManager().removeFromFavorites(userId!, product.id);
+                                    //     favoriteStatus[product.id] = false;
+                                    //   } else {
+                                    //     await FirebaseManager().addToFavorites(product, userId!);
+                                    //     favoriteStatus[product.id] = true;
+                                    //   }
+                                    // } catch (e) {
+                                    //   ScaffoldMessenger.of(context).showSnackBar(
+                                    //     SnackBar(content: Text('Error: $e')),
+                                    //   );
+                                    // } finally {
+                                    //   setState(() {
+                                    //     isLoading[product.id] = false;
+                                    //   });
+                                    // }
                                   },
                                   icon: isLoading[product.id] == true
                                       ? const CircularProgressIndicator()

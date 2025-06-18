@@ -1,5 +1,6 @@
 
 import 'package:e_commerce_app/features/products/products_category_screen.dart';
+import 'package:e_commerce_app/features/splash/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
@@ -20,8 +21,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: LoginScreen.routeName,
+      initialRoute: SplashScreen.routeName,
       routes: {
+        SplashScreen.routeName:(context)=>SplashScreen(),
         RegisterScreen.routeName: (context) => RegisterScreen(),
         LoginScreen.routeName: (context) => LoginScreen(),
         LayoutScreen.routeName: (context) => LayoutScreen(),

@@ -177,7 +177,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       TextButton(
                         onPressed: () {
-                          Navigator.pushNamed(
+                          Navigator.pushReplacementNamed(
                             context,
                             RegisterScreen.routeName,
                           );
@@ -230,7 +230,7 @@ class _LoginScreenState extends State<LoginScreen> {
         DialogUtils.hideLoading(context);
         DialogUtils.showMessage(
           context: context,
-          content: 'The supplied auth credential is incorrect, malformed or has expired.',
+          content: 'The supplied auth credential is incorrect, malformed or has expired. or No user found for that email.',
           title: 'Error',
         );
         print('No user found for that email.');

@@ -16,35 +16,31 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-   UserModel? user ;
-   bool isLoading = true;
-   String? errorMessage;
+  UserModel? user;
+  bool isLoading = true;
+  String? errorMessage;
   @override
   void initState() {
     super.initState();
     getUser();
   }
-   Future<void> getUser() async {
-     setState(() {
-       isLoading = true;
-       errorMessage = null;
-     });
-     try {
-       final id = await FirebaseAuth.instance.currentUser!.uid ;
-       user = await FirebaseManager.getUserProfile(id);
-      setState(() {
 
-       });
-       if (user == null) {
-         errorMessage = 'Failed to load user profile';
-       }
-     } catch (e) {
-       errorMessage = 'Error: $e';
-     }
-     setState(() {
-       isLoading = false;
-     });
-   }
+  Future<void> getUser() async {
+    isLoading = true;
+    errorMessage = null;
+    try {
+      final id = await FirebaseAuth.instance.currentUser!.uid;
+      user = await FirebaseManager.getUserProfile(id);
+      if (user == null) {
+        errorMessage = 'Failed to load user profile';
+      }
+    } catch (e) {
+      errorMessage = 'Error: $e';
+    }
+    isLoading = false;
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
@@ -57,10 +53,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             Text(errorMessage ?? 'No user data found'),
             const SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: getUser,
-              child: const Text('Retry'),
-            ),
+            ElevatedButton(onPressed: getUser, child: const Text('Retry')),
           ],
         ),
       );
@@ -87,15 +80,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             CircleAvatar(
               radius: 50,
               backgroundImage:
-              (user!.path != null) ? FileImage(File(user!.path)) : null,
+                  (user!.path != null) ? FileImage(File(user!.path)) : null,
               child:
-              (user!.path == null)
-                  ? Icon(
-                Icons.person,
-                color: Color(0xff004182),
-                size: 50,
-              )
-                  : null,
+                  (user!.path == null)
+                      ? Icon(Icons.person, color: Color(0xff004182), size: 50)
+                      : null,
             ),
             Text(
               user!.name,
@@ -141,15 +130,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
             // Logout Button
             ElevatedButton(
               onPressed: () async {
-                // await FirebaseManager.logout();
+                await FirebaseAuth.instance.signOut();
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(builder: (_) => const LoginScreen()),
                 );
               },
-              child: const Text('Logout',style: TextStyle(
-                color: Color(0xff004081),
-                fontSize: 20
-              ),),
+              child: const Text(
+                'Logout',
+                style: TextStyle(color: Color(0xff004081), fontSize: 20),
+              ),
             ),
           ],
         ),
