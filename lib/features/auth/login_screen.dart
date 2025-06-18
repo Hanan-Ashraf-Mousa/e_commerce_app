@@ -204,7 +204,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _login() async {
-
+if(_formKey.currentState!.validate()){
     try {
       DialogUtils.showLoading(context: context, message: 'Loading...');
       final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -255,5 +255,5 @@ class _LoginScreenState extends State<LoginScreen> {
       print(e);
       return null;
     }
-  }
+  }}
 }
