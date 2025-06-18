@@ -14,17 +14,26 @@ class OrderModel {
     required this.status,
   });
 
-  factory OrderModel.fromJson(Map<String, dynamic> json) {
-    return OrderModel(
-      id: json['id'] ?? '',
-      products: (json['products'] as List<dynamic>?)
-          ?.map((p) => ProductModel.fromJson(p))
-          .toList() ??
-          [],
-      createdAt: json['createdAt'] != null
-          ? (json['createdAt'] as Timestamp).toDate()
-          : null,
-      status: json['status'] ?? 'unknown',
-    );
+  OrderModel.fromJson(Map<String, dynamic> json)
+    : this(
+        id: json['id'] ?? '',
+        products:
+            (json['products'] as List<dynamic>?)
+                ?.map((p) => ProductModel.fromJson(p))
+                .toList() ??
+            [],
+        createdAt:
+            json['createdAt'] != null
+                ? (json['createdAt'] as Timestamp).toDate()
+                : null,
+        status: json['status'] ?? 'unknown',
+      );
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'products': products.map((product) => product.toJson()),
+      'status': status,
+    };
   }
 }

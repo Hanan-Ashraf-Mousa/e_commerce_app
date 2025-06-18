@@ -183,7 +183,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: isLoading ? null : _processPayment,
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+              style: ElevatedButton.styleFrom(backgroundColor: Color(0xff004081)),
               child: isLoading
                   ? const CircularProgressIndicator(color: Colors.white)
                   : const Text('Complete Payment', style: TextStyle(color: Colors.white)),

@@ -30,16 +30,13 @@ class ProductsScreen extends StatefulWidget {
       });
 
       if (userId != null) {
-        final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic> ??{};
-        final List<ProductModel>? products =
-        args['products'] as List<ProductModel>;
+        final List<ProductModel>? products = await ApiManger.getProducts();
         for (var product in products??[]) {
           favoriteStatus[product.id] = await FirebaseManager().isFavorite(
             userId!,
             product.id,
           );
         }
-        setState(() {});
       }
     }
   @override

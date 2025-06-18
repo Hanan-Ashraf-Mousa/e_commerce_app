@@ -19,8 +19,6 @@ class ProductDetailsScreen extends StatefulWidget {
 class _ProductDetailsPageState extends State<ProductDetailsScreen> {
   int quantity = 1;
   bool isLoading = false;
-  Map<String, bool> favoriteStatus = {};
-  Map<String, bool> loading = {};
   String? userId;
 
   @override
@@ -37,23 +35,6 @@ class _ProductDetailsPageState extends State<ProductDetailsScreen> {
       setState(() {
         userId = id;
       });
-    }
-  }
-
-  @override
-
-  Future<void> _loadFavorites() async {
-    if (userId != null) {
-      final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic> ??{};
-      final List<ProductModel>? products =
-      args['products'] as List<ProductModel>;
-      for (var product in products??[]) {
-        favoriteStatus[product.id] = await FirebaseManager().isFavorite(
-          userId!,
-          product.id,
-        );
-      }
-      setState(() {});
     }
   }
 
@@ -128,43 +109,11 @@ class _ProductDetailsPageState extends State<ProductDetailsScreen> {
                     ),
                   ),
                   IconButton(
-                    onPressed: () async {
-                      if (userId == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Please log in to manage favorites')),
-                        );
-                        return;
-                      }
-                     loading[product.id] = true;
-
-                      try {
-                        if (favoriteStatus[product.id] ?? false) {
-                          await FirebaseManager().removeFromFavorites(userId!, product.id);
-                          favoriteStatus[product.id] = false;
-                        } else {
-                          await FirebaseManager().addToFavorites(product, userId!);
-                          favoriteStatus[product.id] = true;
-                        }
-                        setState(() {
-
-                        });
-                      } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Error: $e')),
-                        );
-                      } finally {
-                        setState(() {
-                          loading[product.id] = false;
-                        });
-                      }
-                    },
-                    icon: loading[product.id] == true
-                        ? const CircularProgressIndicator()
-                        : Icon(
-                      (favoriteStatus[product.id] ?? false)
-                          ? Icons.favorite
-                          : Icons.favorite_border_outlined,
-                      color: const Color(0xff004182),
+                    onPressed: () {},
+                    icon: Icon(
+                      Icons.favorite_border_outlined,
+                      size: 40,
+                      color: Colors.indigo,
                     ),
                   ),
                 ],
@@ -328,6 +277,8 @@ class _ProductDetailsPageState extends State<ProductDetailsScreen> {
     try {
       isLoading = true;
       final productWithQuantity = widget.product..quantity = quantity;
+      // final prefs = await SharedPreferences.getInstance();
+      // final id = prefs.getString('userId');
       await FirebaseManager().addToCart(productWithQuantity, userId!);
       if (mounted) {
         isLoading = false;

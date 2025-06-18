@@ -126,7 +126,10 @@ class _ProductsCategoryScreenState extends State<ProductsCategoryScreen> {
                                       );
                                       return;
                                     }
+
+                                    setState(() {
                                       isLoading[product.id] = true;
+                                    });
 
                                     try {
                                       if (favoriteStatus[product.id] ?? false) {
@@ -136,16 +139,10 @@ class _ProductsCategoryScreenState extends State<ProductsCategoryScreen> {
                                         await FirebaseManager().addToFavorites(product, userId!);
                                         favoriteStatus[product.id] = true;
                                       }
-                                      setState(() {
-
-                                      });
                                     } catch (e) {
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(content: Text('Error: $e')),
                                       );
-                                      setState(() {
-
-                                      });
                                     } finally {
                                       setState(() {
                                         isLoading[product.id] = false;
