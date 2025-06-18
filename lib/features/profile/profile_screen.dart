@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:e_commerce_app/network/firbase_manager.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -29,7 +30,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
        errorMessage = null;
      });
      try {
-       // user = await FirebaseManager().getUserProfile();
+       final id = await FirebaseAuth.instance.currentUser!.uid ;
+       user = await FirebaseManager.getUserProfile(id);
       setState(() {
 
        });
