@@ -6,6 +6,7 @@ import 'package:e_commerce_app/models/product_model.dart';
 import 'package:e_commerce_app/network/firbase_manager.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/user_model.dart';
 import '../../network/api_manager.dart';
@@ -44,7 +45,9 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
   getCurrentUser()async{
-    final id = await FirebaseAuth.instance.currentUser!.uid ;
+    // final id = await FirebaseAuth.instance.currentUser!.uid ;
+    SharedPreferences prefs=await SharedPreferences.getInstance();
+    final id = prefs.getString('userId')!;
      UserModel? user = await FirebaseManager.getUserProfile(id);
      if(user!=null){
        name = user.name;

@@ -18,6 +18,7 @@ class _ProductsCategoryScreenState extends State<ProductsCategoryScreen> {
   String? userId;
   Map<String, bool> favoriteStatus = {};
   Map<String, bool> isLoading = {};
+  bool loading = true;
 
   @override
   void initState() {
@@ -42,6 +43,7 @@ class _ProductsCategoryScreenState extends State<ProductsCategoryScreen> {
           product.id,
         );
       }
+      loading = false;
       setState(() {});
     }
   }
@@ -68,7 +70,7 @@ class _ProductsCategoryScreenState extends State<ProductsCategoryScreen> {
           icon: Icon(Icons.arrow_back, color: Colors.white70),
         ),
       ),
-      body: products.isEmpty
+      body: loading?Center(child: CircularProgressIndicator(),):products.isEmpty
               ? const Center(
                 child: Text(
                   'No products Found for this Category',
