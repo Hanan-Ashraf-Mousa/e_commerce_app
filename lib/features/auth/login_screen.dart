@@ -1,7 +1,7 @@
+import 'package:e_commerce_app/dialog_utils.dart';
 import 'package:e_commerce_app/features/auth/register_screen.dart';
-import 'package:e_commerce_app/network/firbase_manager.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../widgets/custom_text_form_field.dart';
 import '../layout/layout_screen.dart';
@@ -17,16 +17,15 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
   bool isHiddenPass = true;
- bool remember= false;
- bool isLoading =false;
+  bool remember = false;
   @override
   void dispose() {
     super.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
   }
 
   @override
@@ -69,9 +68,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 CustomTextFormField(
-                  controller: _emailController,
+                  controller: emailController,
                   hintText: 'enter your email',
                   prefixIcon: Icons.email,
+                  type: TextInputType.emailAddress,
                   validate: (value) {
                     if (value == null || value.isEmpty) {
                       return 'enter your email';
@@ -92,7 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 CustomTextFormField(
-                  controller: _passwordController,
+                  controller: passwordController,
                   hintText: 'enter your password',
                   prefixIcon: Icons.lock,
                   secure: isHiddenPass,
@@ -115,34 +115,29 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                 ),
                 CheckboxListTile(
-                    value: remember,
-                    onChanged: (value){
-                      setState(() {
-                        remember = value!;
-                      });
-                    },
+                  value: remember,
+                  onChanged: (value) {
+                    setState(() {
+                      remember = value!;
+                    });
+                  },
                   checkboxShape: RoundedRectangleBorder(
-                    side: BorderSide(
-                      color: Colors.white,
-
-                    )
+                    side: BorderSide(color: Colors.white),
                   ),
-                   side: BorderSide(
-                     color: Colors.white,
-                     width: 2
-                   ),
-                  fillColor: WidgetStateProperty.resolveWith(
-                      (Set<WidgetState> states){
-                        if(states.contains(WidgetState.selected)) return Colors.white;
-                        return Colors.transparent;
-                      }
-                  ),
+                  side: BorderSide(color: Colors.white, width: 2),
+                  fillColor: WidgetStateProperty.resolveWith((
+                    Set<WidgetState> states,
+                  ) {
+                    if (states.contains(WidgetState.selected))
+                      return Colors.white;
+                    return Colors.transparent;
+                  }),
                   checkColor: Color(0xff004182),
-                  title:Text('Remember me' , style: TextStyle(
-                    fontSize: 20,
-                    color: Colors.white,
-                  ),),
-                    ),
+                  title: Text(
+                    'Remember me',
+                    style: TextStyle(fontSize: 20, color: Colors.white),
+                  ),
+                ),
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 10,
@@ -208,42 +203,48 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _login() async {
-    setState(() {
-      isLoading = true;
-    });
 
     try {
-      final userId = await FirebaseManager.signin(
-        _emailController.text.trim(),
-        _passwordController.text.trim(),
+      DialogUtils.showLoading(context: context, message: 'Loading...');
+      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: emailController.text,
+        password: passwordController.text,
       );
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('userId', userId!);
-
-      // Show success SnackBar
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Login successful!'),
-          backgroundColor: Colors.green,
-        ),
+      DialogUtils.hideLoading(context);
+      DialogUtils.showMessage(
+        context: context,
+        content: 'Login Successfully',
+        title: 'Login',
+        posName: 'ok',
+        posAction:
+            () => Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => LayoutScreen()),
+            ),
       );
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context)=>LayoutScreen())
-      );
+      // final SharedPreferences prefs = await SharedPreferences.getInstance();
+      // await prefs.setString('userId', credential.user!.uid);
+    } on FirebaseAuthException catch (e) {
+      print(e.code);
+      if (e.code == 'invalid-credential') {
+        DialogUtils.hideLoading(context);
+        DialogUtils.showMessage(
+          context: context,
+          content: 'The supplied auth credential is incorrect, malformed or has expired.',
+          title: 'Error',
+        );
+        print('No user found for that email.');
+      }
+      return null;
     } catch (e) {
-      // Show error SnackBar
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Login failed: $e'),
-          backgroundColor: Colors.red,
-        ),
+      DialogUtils.hideLoading(context);
+      DialogUtils.showMessage(
+        context: context,
+        content: e.toString(),
+        title: 'Error',
       );
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
+      print(e);
+      return null;
     }
   }
 }

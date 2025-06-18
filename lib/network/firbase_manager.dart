@@ -8,55 +8,6 @@ import '../models/product_model.dart';
 class FirebaseManager {
   final FirebaseFirestore db = FirebaseFirestore.instance;
 
-  static Future<String?> signup(String email, String password) async {
-    try {
-      final credential = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(email: email, password: password);
-      return credential.user!.uid;
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'weak-password') {
-        print('The password provided is too weak.');
-      } else if (e.code == 'email-already-in-use') {
-        print('The account already exists for that email.');
-      }
-      return null;
-    } catch (e) {
-      print(e);
-      return null;
-    }
-  }
-
-  static Future<String?> signin(String email, String password) async {
-    try {
-      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('userId', credential.user!.uid);
-      return credential.user!.uid;
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        print('No user found for that email.');
-      } else if (e.code == 'wrong-password') {
-        print('Wrong password provided for that user.');
-      }
-      return null;
-    } catch (e) {
-      print(e);
-      return null;
-    }
-  }
-
-  static Future<void> logout() async {
-    try {
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.remove('userId');
-      await FirebaseAuth.instance.signOut();
-    } catch (e) {
-      throw Exception('Failed to logout: $e');
-    }
-  }
 
   CollectionReference<UserModel> getUsersCollection() {
     return db.collection('users').withConverter<UserModel>(

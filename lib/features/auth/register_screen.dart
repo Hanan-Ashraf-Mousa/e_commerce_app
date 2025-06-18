@@ -1,7 +1,9 @@
 import 'dart:io';
 
+import 'package:e_commerce_app/dialog_utils.dart';
 import 'package:e_commerce_app/network/firbase_manager.dart';
 import 'package:e_commerce_app/models/user_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -19,7 +21,7 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  var format = DateFormat('yyyy/mm/dd');
+  var format = DateFormat('yyyy/MM/dd');
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController _nameController = TextEditingController();
@@ -38,6 +40,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool isHiddenPass = true;
   bool isHiddenConfirm = true;
   File? avatar;
+  bool isLoading = false;
 
   @override
   void dispose() {
@@ -126,6 +129,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   controller: _emailController,
                   hintText: 'enter your email',
                   prefixIcon: Icons.email,
+                  type: TextInputType.emailAddress,
                   validate: (value) {
                     if (value == null || value.isEmpty) {
                       return 'enter your email';
@@ -347,6 +351,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
                 SizedBox(height: 10),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, LoginScreen.routeName);
+                  },
+                  child: Text(
+                    'Already Have an account!  login',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -357,28 +374,63 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   register() async {
     if (_formKey.currentState!.validate()) {
-      final uid = await FirebaseManager.signup(
-        _emailController.text,
-        _passwordController.text,
-      );
-      if(uid !=null){
-      UserModel user = UserModel(
-        id: uid!,
-        name: _nameController.text,
-        phone: _phoneController.text,
-        email: _emailController.text,
-        gender: _gender,
-        address: _addressController.text,
-        dob: _dOBController.text,
-        path: avatar!.path
-      );
-      FirebaseManager().storeUser(user);
-      Navigator.pushReplacementNamed(context, LoginScreen.routeName);
-    }else{
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to sign up, try again')));
+      try {
+        DialogUtils.showLoading(context: context, message: 'Loading ...');
+        final credential = await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(
+              email: _emailController.text,
+              password: _passwordController.text,
+            );
+
+        UserModel user = UserModel(
+          id: FirebaseAuth.instance.currentUser!.uid,
+          name: _nameController.text,
+          phone: _phoneController.text,
+          email: _emailController.text,
+          gender: _gender,
+          address: _addressController.text,
+          dob: _dOBController.text,
+          path: avatar!.path,
+        );
+        FirebaseManager().storeUser(user);
+
+        DialogUtils.showMessage(
+          context: context,
+          content: 'Account created Successfully',
+          title: 'Register',
+          posName: 'ok',
+          posAction:
+              () => Navigator.pushReplacementNamed(
+                context,
+                LoginScreen.routeName,
+              ),
+        );
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'weak-password') {
+          DialogUtils.hideLoading(context);
+          DialogUtils.showMessage(
+            context: context,
+            content: 'The password provided is too weak.',
+            title: 'Error',
+            posName: 'Ok',
+          );
+          print('The password provided is too weak.');
+        } else if (e.code == 'email-already-in-use') {
+          DialogUtils.showMessage(
+            context: context,
+            content: 'The account already exists for that email.',
+            title: 'Error',
+            posName: 'ok',
+          );
+          print('The account already exists for that email.');
+        }
+        return null;
+      } catch (e) {
+        print(e);
+        return null;
       }
-  }}
+    }
+  }
 
   _pickImage() async {
     ImagePicker imagePicker = ImagePicker();
@@ -397,7 +449,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       lastDate: DateTime.now(),
     );
     if (selectedDate != null) {
-      _dOBController.text = format.format(selectedDate).toString();
+      print(format.format(selectedDate));
+      _dOBController.text = '${format.format(selectedDate)}';
     }
     setState(() {});
   }

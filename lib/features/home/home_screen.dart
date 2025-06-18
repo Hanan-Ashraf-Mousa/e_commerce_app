@@ -3,6 +3,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:e_commerce_app/features/products/products_screen.dart';
 import 'package:e_commerce_app/models/product_model.dart';
 import 'package:e_commerce_app/network/firbase_manager.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -42,13 +43,11 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
   getCurrentUser()async{
-    UserModel? user =await FirebaseManager().getUserProfile();
-    if(user!=null){
-      name = user.name;
-    }
-    setState(() {
+     name = await FirebaseAuth.instance.currentUser!.displayName ??'Guest';
+     setState(() {
 
-    });
+     });
+
   }
 
   Future<void> navigateToProductsScreen(
