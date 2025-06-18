@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:e_commerce_app/features/products/cart_screen.dart';
 import 'package:e_commerce_app/network/firbase_manager.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/product_model.dart';
@@ -18,6 +19,8 @@ class ProductDetailsScreen extends StatefulWidget {
 class _ProductDetailsPageState extends State<ProductDetailsScreen> {
   int quantity = 1;
   bool isLoading = false;
+  Map<String, bool> favoriteStatus = {};
+  Map<String, bool> loading = {};
   String? userId;
 
   @override
@@ -25,13 +28,32 @@ class _ProductDetailsPageState extends State<ProductDetailsScreen> {
     super.initState();
     _loadUserId();
   }
+
   Future<void> _loadUserId() async {
     final prefs = await SharedPreferences.getInstance();
     final id = prefs.getString('userId');
+    // final id = FirebaseAuth.instance.currentUser!.uid;
     if (id != null && mounted) {
       setState(() {
         userId = id;
       });
+    }
+  }
+
+  @override
+
+  Future<void> _loadFavorites() async {
+    if (userId != null) {
+      final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic> ??{};
+      final List<ProductModel>? products =
+      args['products'] as List<ProductModel>;
+      for (var product in products??[]) {
+        favoriteStatus[product.id] = await FirebaseManager().isFavorite(
+          userId!,
+          product.id,
+        );
+      }
+      setState(() {});
     }
   }
 
@@ -67,7 +89,10 @@ class _ProductDetailsPageState extends State<ProductDetailsScreen> {
         actions: [
           IconButton(
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context)=>CartScreen()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => CartScreen()),
+              );
             },
             icon: Icon(Icons.shopping_cart_outlined, color: Color(0xff004081)),
           ),
@@ -103,11 +128,43 @@ class _ProductDetailsPageState extends State<ProductDetailsScreen> {
                     ),
                   ),
                   IconButton(
-                    onPressed: () {},
-                    icon: Icon(
-                      Icons.favorite_border_outlined,
-                      size: 40,
-                      color: Colors.indigo,
+                    onPressed: () async {
+                      if (userId == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Please log in to manage favorites')),
+                        );
+                        return;
+                      }
+                     loading[product.id] = true;
+
+                      try {
+                        if (favoriteStatus[product.id] ?? false) {
+                          await FirebaseManager().removeFromFavorites(userId!, product.id);
+                          favoriteStatus[product.id] = false;
+                        } else {
+                          await FirebaseManager().addToFavorites(product, userId!);
+                          favoriteStatus[product.id] = true;
+                        }
+                        setState(() {
+
+                        });
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Error: $e')),
+                        );
+                      } finally {
+                        setState(() {
+                          loading[product.id] = false;
+                        });
+                      }
+                    },
+                    icon: loading[product.id] == true
+                        ? const CircularProgressIndicator()
+                        : Icon(
+                      (favoriteStatus[product.id] ?? false)
+                          ? Icons.favorite
+                          : Icons.favorite_border_outlined,
+                      color: const Color(0xff004182),
                     ),
                   ),
                 ],
@@ -156,7 +213,7 @@ class _ProductDetailsPageState extends State<ProductDetailsScreen> {
                           color: Color(0xff06004F),
                         ),
                       ),
-                      SizedBox(width: 10,),
+                      SizedBox(width: 10),
                       Container(
                         alignment: Alignment.center,
                         width: MediaQuery.of(context).size.width * 0.4,
@@ -224,7 +281,7 @@ class _ProductDetailsPageState extends State<ProductDetailsScreen> {
                       SizedBox(width: 10),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed:()async {
+                          onPressed: () async {
                             _addToCart();
                           },
                           style: ElevatedButton.styleFrom(
@@ -260,6 +317,7 @@ class _ProductDetailsPageState extends State<ProductDetailsScreen> {
       ),
     );
   }
+
   Future<void> _addToCart() async {
     if (userId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -268,32 +326,28 @@ class _ProductDetailsPageState extends State<ProductDetailsScreen> {
       return;
     }
     try {
-      setState(() {
-        isLoading = true;
-      });
+      isLoading = true;
       final productWithQuantity = widget.product..quantity = quantity;
-      final prefs = await SharedPreferences.getInstance();
-      final id = prefs.getString('userId');
-      await FirebaseManager().addToCart(productWithQuantity, id!);
+      await FirebaseManager().addToCart(productWithQuantity, userId!);
       if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
+        isLoading = false;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${widget.product.title} (x$quantity) added to cart!'),
+            content: Text(
+              '${widget.product.title} ( $quantity) added to cart!',
+            ),
             duration: const Duration(seconds: 2),
           ),
         );
       }
+      setState(() {});
     } catch (e) {
       if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error adding to cart: $e')),
-        );
+        isLoading = false;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error adding to cart: $e')));
+        setState(() {});
       }
     }
   }

@@ -120,34 +120,37 @@ class _ProductsCategoryScreenState extends State<ProductsCategoryScreen> {
                                 ),
                                 IconButton(
                                   onPressed: () async {
-                                    // if (userId == null) {
-                                    //   ScaffoldMessenger.of(context).showSnackBar(
-                                    //     SnackBar(content: Text('Please log in to manage favorites')),
-                                    //   );
-                                    //   return;
-                                    // }
-                                    //
-                                    // setState(() {
-                                    //   isLoading[product.id] = true;
-                                    // });
-                                    //
-                                    // try {
-                                    //   if (favoriteStatus[product.id] ?? false) {
-                                    //     await FirebaseManager().removeFromFavorites(userId!, product.id);
-                                    //     favoriteStatus[product.id] = false;
-                                    //   } else {
-                                    //     await FirebaseManager().addToFavorites(product, userId!);
-                                    //     favoriteStatus[product.id] = true;
-                                    //   }
-                                    // } catch (e) {
-                                    //   ScaffoldMessenger.of(context).showSnackBar(
-                                    //     SnackBar(content: Text('Error: $e')),
-                                    //   );
-                                    // } finally {
-                                    //   setState(() {
-                                    //     isLoading[product.id] = false;
-                                    //   });
-                                    // }
+                                    if (userId == null) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text('Please log in to manage favorites')),
+                                      );
+                                      return;
+                                    }
+                                      isLoading[product.id] = true;
+
+                                    try {
+                                      if (favoriteStatus[product.id] ?? false) {
+                                        await FirebaseManager().removeFromFavorites(userId!, product.id);
+                                        favoriteStatus[product.id] = false;
+                                      } else {
+                                        await FirebaseManager().addToFavorites(product, userId!);
+                                        favoriteStatus[product.id] = true;
+                                      }
+                                      setState(() {
+
+                                      });
+                                    } catch (e) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text('Error: $e')),
+                                      );
+                                      setState(() {
+
+                                      });
+                                    } finally {
+                                      setState(() {
+                                        isLoading[product.id] = false;
+                                      });
+                                    }
                                   },
                                   icon: isLoading[product.id] == true
                                       ? const CircularProgressIndicator()

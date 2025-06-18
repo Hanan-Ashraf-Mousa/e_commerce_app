@@ -49,7 +49,7 @@ class FirebaseManager {
     }
   }
   Future<void> clearCart(String userId) async {
-    final cartRef = FirebaseFirestore.instance.collection('users').doc(userId).collection('cart');
+    final cartRef =getCartCollection(userId);
     final snapshot = await cartRef.get();
     for (var doc in snapshot.docs) {
       await doc.reference.delete();

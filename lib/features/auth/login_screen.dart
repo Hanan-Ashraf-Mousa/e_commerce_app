@@ -2,6 +2,7 @@ import 'package:e_commerce_app/dialog_utils.dart';
 import 'package:e_commerce_app/features/auth/register_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../widgets/custom_text_form_field.dart';
 import '../layout/layout_screen.dart';
@@ -210,6 +211,8 @@ class _LoginScreenState extends State<LoginScreen> {
         email: emailController.text,
         password: passwordController.text,
       );
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('userId', credential.user!.uid);
       DialogUtils.hideLoading(context);
       DialogUtils.showMessage(
         context: context,
@@ -222,8 +225,7 @@ class _LoginScreenState extends State<LoginScreen> {
               MaterialPageRoute(builder: (context) => LayoutScreen()),
             ),
       );
-      // final SharedPreferences prefs = await SharedPreferences.getInstance();
-      // await prefs.setString('userId', credential.user!.uid);
+
     } on FirebaseAuthException catch (e) {
       print(e.code);
       if (e.code == 'invalid-credential') {
@@ -234,6 +236,13 @@ class _LoginScreenState extends State<LoginScreen> {
           title: 'Error',
         );
         print('No user found for that email.');
+      }else if(e.code =='invalid-email'){
+        DialogUtils.hideLoading(context);
+        DialogUtils.showMessage(
+          context: context,
+          content: ' The email address is badly formatted.',
+          title: 'Error',
+        );
       }
       return null;
     } catch (e) {
